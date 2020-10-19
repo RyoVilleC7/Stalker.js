@@ -10,6 +10,7 @@ class Stalker {
         //要素取得
         const msElem = document.getElementById('MouseStalker');
 
+        
         //スタイル初期値
         msElem.style.width = style.size ? style.size + 'px' : (style.size = 16) + 'px';
         msElem.style.height = style.size ? style.size + 'px' : (style.size = 16) + 'px';
@@ -23,6 +24,7 @@ class Stalker {
         style.options.hoverAction = 'hoverAction' in style.options ? style.options.hoverAction : style.options.hoverAction = true;
         style.options.clickAction = 'clickAction' in style.options ? style.options.clickAction : style.options.clickAction = 'none';
         style.options.fadeOut_In = 'fadeOut_In' in style.options ? style.options.fadeOut_In : style.options.fadeOut_In = true;
+        style.options.innerContent = 'innerContent' in style.options ? style.options.innerContent : style.options.innerContent = false;
 
         switch (style.shape) {
             case 'rounded':
@@ -85,8 +87,12 @@ class Stalker {
                         
                         effectElem.animate([
                             {opacity: '1', transform: 'scale(1)'},
-                            {opacity: '0', transform: 'scale(4)'}
+                            {opacity: '0', transform: 'scale(2)'}
                         ], animationTime)
+
+                        setTimeout(() => {
+                            effectElem.style.opacity = '0';
+                        }, animationTime)
 
                         break;
                 
@@ -94,10 +100,6 @@ class Stalker {
                         break;
                 }
             });
-
-            setTimeout(() => {
-                effectElem.style.opacity = '0';
-            }, animationTime)
         };
 
 
@@ -142,7 +144,6 @@ class Stalker {
                     msElem.style.height = style.size + 'px';
                     msElem.style.border = 'none';
                     msElem.style.backgroundColor = style.color;
-                    console.log(style.color)
 
                     //effect element
                     effectElem.style.width = style.size+ 'px';
@@ -150,6 +151,26 @@ class Stalker {
 
                 });
             };
+
+            if(style.options.innerContent){
+                let innerContentElem = document.createElement('span');
+                innerContentElem.setAttribute('id', 'ms-innerContent');
+                msElem.appendChild(innerContentElem)
+
+
+                for (let i = 0; i < hovElems.length; i++) {
+
+                    hovElems[i].addEventListener('mouseover', (e) => {
+                        if(e.target.getAttribute('ms-data') !== null){
+                            innerContentElem.innerText = e.target.getAttribute('ms-data');
+                        };
+                    });
+        
+                    hovElems[i].addEventListener('mouseout', () => {
+                        innerContentElem.innerText = '';
+                    });
+                };
+            }
         }
 
 
