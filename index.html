@@ -4,12 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stalker.js</title>
+    <style>
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .box {
+            width: 200px;
+            height: 200px;
+            background-color: #d1d1d1;
+            margin: 50px;
+        }
+
+    </style>
 </head>
 <body style="height: 1000px;">
     <div id="MouseStalker"></div>
+    <div class="box ms-hov"></div>
+    <div class="box ms-hov"></div>
+    <div class="box ms-hov"></div>
     <script src="ms.js"></script>
     <script>
-        const MouseStalker = new Stalker();
+        const MouseStalker = new Stalker({
+            options: {
+                clickAction: 'ripple'
+            }
+        });
     </script>
 </body>
 </html>

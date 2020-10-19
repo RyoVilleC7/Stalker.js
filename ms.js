@@ -1,81 +1,162 @@
 class Stalker {
+
     constructor(custumStyle){
 
-        let style = custumStyle ? custumStyle : {
-            options: {
-                hoverAction: true,
-                clickAction: false,
-                fadeOut_In: true,
-                custumStyle: true,
-            }
-        };
+        //カスタムスタイルの有無判定
+        //存在しなければ空のオブジェクトを代入
+        let style = custumStyle ? custumStyle : {};
+
 
         //要素取得
-        this.msElem = document.getElementById('MouseStalker');
+        const msElem = document.getElementById('MouseStalker');
 
-        //初期値
-        this.msElem.style.width = style.size ? style.size + 'px' : (style.size = 16) + 'px';
-        this.msElem.style.height = style.size ? style.size + 'px' : (style.size = 16) + 'px';
-        this.msElem.style.backgroundColor = style.color ? style.color : 'red';
-        this.msElem.style.transition = style.speed ? style.speed + 'ms' : '200ms';
-        this.msElem.style.transitionTimingFunction = 'ease-out';
-        this.msElem.style.position = 'fixed';
+        //スタイル初期値
+        msElem.style.width = style.size ? style.size + 'px' : (style.size = 16) + 'px';
+        msElem.style.height = style.size ? style.size + 'px' : (style.size = 16) + 'px';
+        msElem.style.backgroundColor = style.color ? style.color : style.color = 'red';
+        msElem.style.transition = style.speed ? style.speed : style.speed = '200ms';
+        msElem.style.transitionTimingFunction = 'ease-out';
+        msElem.style.position = 'fixed';
+        msElem.style.pointerEvents = 'none';
+        msElem.style.zIndex = '9999'
+        style.options = 'options' in style ? style.options : {};
+        style.options.hoverAction = 'hoverAction' in style.options ? style.options.hoverAction : style.options.hoverAction = true;
+        style.options.clickAction = 'clickAction' in style.options ? style.options.clickAction : style.options.clickAction = 'none';
+        style.options.fadeOut_In = 'fadeOut_In' in style.options ? style.options.fadeOut_In : style.options.fadeOut_In = true;
 
         switch (style.shape) {
             case 'rounded':
-                this.msElem.style.borderRadius = '50%';
+                msElem.style.borderRadius = '50%';
                 break;
             
             case 'square':
-                this.msElem.style.borderRadius = '0%';
+                msElem.style.borderRadius = '0%';
                 break;
         
             default:
-                this.msElem.style.borderRadius = '50%';
+                msElem.style.borderRadius = '50%';
                 break;
         };
         
-        if(style.options.clickAction){
-            document.addEventListener('mousedown', () => {
-                this.msElem.style.width = (style.size*4) + 'px';
-                this.msElem.style.height = (style.size*4) + 'px';
+
+        //クリックアクション
+        if(!(style.options.clickAction === 'none')){
+
+            const effectElem = document.createElement('span');
+            effectElem.setAttribute('id', 'effectElem');
+            msElem.appendChild(effectElem);
+            effectElem.style.width = style.size + 'px';
+            effectElem.style.height = style.size + 'px';
+            effectElem.style.backgroundColor = style.color;
+            effectElem.style.transition = style.speed;
+            effectElem.style.transitionTimingFunction = 'ease-out';
+            effectElem.style.position = 'fixed';
+            effectElem.style.pointerEvents = 'none'
+            effectElem.style.display = 'inline-block';
+            effectElem.style.opacity = '0';
+
+            switch (style.shape) {
+                case 'rounded':
+                    effectElem.style.borderRadius = '50%';
+                    break;
+                
+                case 'square':
+                    effectElem.style.borderRadius = '0%';
+                    break;
+            
+                default:
+                    effectElem.style.borderRadius = '50%';
+                    break;
+            };
+            
+            //マウスを動かした際の処理
+            document.addEventListener('mousemove', e => {
+                effectElem.style.left = `${e.clientX - style.size / 2}px`;
+                effectElem.style.top = `${e.clientY - style.size / 2}px`;
             });
 
-            document.addEventListener('mouseup', () => {
-                this.msElem.style.width = style.size + 'px';
-                this.msElem.style.height = style.size + 'px';
-            })
+            const animationTime = 400;
+
+            document.addEventListener('mousedown', () => {
+
+                //アニメーションの種類を判定
+                switch (style.options.clickAction) {
+                    case 'ripple':
+                        
+                        effectElem.animate([
+                            {opacity: '1', transform: 'scale(1)'},
+                            {opacity: '0', transform: 'scale(4)'}
+                        ], animationTime)
+
+                        break;
+                
+                    default:
+                        break;
+                }
+            });
+
+            setTimeout(() => {
+                effectElem.style.opacity = '0';
+            }, animationTime)
         };
 
+
+        //フェードインアウト
         if(style.options.fadeOut_In){
             document.addEventListener('mouseout', () => {
-                this.msElem.style.opacity = '0';
+                msElem.style.opacity = '0';
             });
 
             document.addEventListener('mouseover', () => {
-                this.msElem.style.opacity = '1';
+                msElem.style.opacity = '1';
             });
         };
 
-        document.addEventListener('mousemove', e => {
+        //ホバーアクション
+        if(style.options.hoverAction){
 
-            this.msElem.style.left = `${e.clientX - style.size / 2}px`;
-            this.msElem.style.top = `${e.clientY - style.size / 2}px`;
+            const hovElems = document.getElementsByClassName('ms-hov');
 
-            if(style.options.hoverAction){
+            for (let i = 0; i < hovElems.length; i++) {
 
-                if(e.target.classList.contains('ms-hov')){
-                    this.msElem.style.width = (style.size*4) + 'px';
-                    this.msElem.style.height = (style.size*4) + 'px';
-                    this.msElem.style.backgroundColor = 'transparent';
-                    this.msElem.style.border = `${style.color} 1px solid`;
-                }else {
-                    this.msElem.style.width = style.size + 'px';
-                    this.msElem.style.height = style.size + 'px';
-                    this.msElem.style.backgroundColor = style.color;
-                    this.msElem.style.border = 'none';
-                };
+                //over
+                hovElems[i].addEventListener('mouseover', ()=>{
+
+                    //stalker element
+                    msElem.style.width = (style.size = style.size * 4) + 'px';
+                    msElem.style.height = style.size + 'px';
+                    msElem.style.border = style.color + ' ' + '2px solid';
+                    msElem.style.backgroundColor = 'transparent';
+
+                    //effect element
+                    effectElem.style.width = style.size + 'px';
+                    effectElem.style.height = style.size + 'px';
+
+                });
+
+                //out
+                hovElems[i].addEventListener('mouseout', ()=>{
+
+                    //stalker element
+                    msElem.style.width = (style.size = style.size / 4) + 'px';
+                    msElem.style.height = style.size + 'px';
+                    msElem.style.border = 'none';
+                    msElem.style.backgroundColor = style.color;
+                    console.log(style.color)
+
+                    //effect element
+                    effectElem.style.width = style.size+ 'px';
+                    effectElem.style.height = style.size + 'px';
+
+                });
             };
+        }
+
+
+        //マウスを動かした際の処理
+        document.addEventListener('mousemove', e => {
+            msElem.style.left = `${e.clientX - style.size / 2}px`;
+            msElem.style.top = `${e.clientY - style.size / 2}px`;
         });
     };
 };
