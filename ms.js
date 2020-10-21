@@ -4,94 +4,93 @@ class Stalker {
 
         //カスタムスタイルの有無判定
         //存在しなければ空のオブジェクトを代入
-        let style = custumStyle ? custumStyle : {};
+        this.style = custumStyle ? custumStyle : {};
 
+        this.hidden = false;
 
         //要素取得
-        const msElem = document.getElementById('MouseStalker');
+        this.msElem = document.getElementById('MouseStalker');
 
         
         //スタイル初期値
-        msElem.style.width = style.size ? style.size + 'px' : (style.size = 16) + 'px';
-        msElem.style.height = style.size ? style.size + 'px' : (style.size = 16) + 'px';
-        msElem.style.backgroundColor = style.color ? style.color : style.color = 'red';
-        msElem.style.transition = style.speed ? style.speed : style.speed = '200ms';
-        msElem.style.transitionTimingFunction = 'ease-out';
-        msElem.style.position = 'fixed';
-        msElem.style.pointerEvents = 'none';
-        msElem.style.zIndex = '9999'
-        style.options = 'options' in style ? style.options : {};
-        style.options.hoverAction = 'hoverAction' in style.options ? style.options.hoverAction : style.options.hoverAction = true;
-        style.options.clickAction = 'clickAction' in style.options ? style.options.clickAction : style.options.clickAction = 'none';
-        style.options.fadeOut_In = 'fadeOut_In' in style.options ? style.options.fadeOut_In : style.options.fadeOut_In = true;
-        style.options.innerContent = 'innerContent' in style.options ? style.options.innerContent : style.options.innerContent = false;
+        this.msElem.style.width = this.style.size ? this.style.size + 'px' : (this.style.size = 16) + 'px';
+        this.msElem.style.height = this.style.size ? this.style.size + 'px' : (this.style.size = 16) + 'px';
+        this.msElem.style.backgroundColor = this.style.color ? this.style.color : this.style.color = 'red';
+        this.msElem.style.position = 'fixed';
+        this.msElem.style.pointerEvents = 'none';
+        this.msElem.style.zIndex = '9999'
+        this.style.options = 'options' in this.style ? this.style.options : {};
+        this.style.options.hoverAction = 'hoverAction' in this.style.options ? this.style.options.hoverAction : this.style.options.hoverAction = true;
+        this.style.options.clickAction = 'clickAction' in this.style.options ? this.style.options.clickAction : this.style.options.clickAction = 'none';
+        this.style.options.fadeOut_In = 'fadeOut_In' in this.style.options ? this.style.options.fadeOut_In : this.style.options.fadeOut_In = true;
+        this.style.options.innerContent = 'innerContent' in this.style.options ? this.style.options.innerContent : this.style.options.innerContent = false;
 
-        switch (style.shape) {
+        switch (this.style.shape) {
             case 'rounded':
-                msElem.style.borderRadius = '50%';
+                this.msElem.style.borderRadius = '50%';
                 break;
             
             case 'square':
-                msElem.style.borderRadius = '0%';
+                this.msElem.style.borderRadius = '0%';
                 break;
         
             default:
-                msElem.style.borderRadius = '50%';
+                this.msElem.style.borderRadius = '50%';
                 break;
         };
+
         
+        this.mouse = {x: 0, y: 0};
+        this.renderedStyles = {
+            tx: {previous: 0, current: 0, amt: 0.2},
+            ty: {previous: 0, current: 0, amt: 0.2},
+            size: {previous: this.style.size, current: this.style.size, amt: 0.2},
+            opacity: {previous: 1, current: 1, amt: 0.2}
+        };
 
         //クリックアクション
-        if(!(style.options.clickAction === 'none')){
+        if(!(this.style.options.clickAction === 'none')){
 
-            const effectElem = document.createElement('span');
-            effectElem.setAttribute('id', 'effectElem');
-            msElem.appendChild(effectElem);
-            effectElem.style.width = style.size + 'px';
-            effectElem.style.height = style.size + 'px';
-            effectElem.style.backgroundColor = style.color;
-            effectElem.style.transition = style.speed;
-            effectElem.style.transitionTimingFunction = 'ease-out';
-            effectElem.style.position = 'fixed';
-            effectElem.style.pointerEvents = 'none'
-            effectElem.style.display = 'inline-block';
-            effectElem.style.opacity = '0';
+            this.effectElem = document.createElement('span');
+            this.effectElem.setAttribute('id', 'effectElem');
+            this.msElem.appendChild(this.effectElem);
+            this.effectElem.style.width = this.style.size + 'px';
+            this.effectElem.style.height = this.style.size + 'px';
+            this.effectElem.style.backgroundColor = this.style.color;
+            this.effectElem.style.position = 'fixed';
+            this.effectElem.style.pointerEvents = 'none'
+            this.effectElem.style.display = 'inline-block';
+            this.effectElem.style.opacity = '0';
 
-            switch (style.shape) {
+            switch (this.style.shape) {
                 case 'rounded':
-                    effectElem.style.borderRadius = '50%';
+                    this.effectElem.style.borderRadius = '50%';
                     break;
                 
                 case 'square':
-                    effectElem.style.borderRadius = '0%';
+                    this.effectElem.style.borderRadius = '0%';
                     break;
             
                 default:
-                    effectElem.style.borderRadius = '50%';
+                    this.effectElem.style.borderRadius = '50%';
                     break;
             };
-            
-            //マウスを動かした際の処理
-            document.addEventListener('mousemove', e => {
-                effectElem.style.left = `${e.clientX - style.size / 2}px`;
-                effectElem.style.top = `${e.clientY - style.size / 2}px`;
-            });
 
             const animationTime = 400;
 
             document.addEventListener('mousedown', () => {
 
                 //アニメーションの種類を判定
-                switch (style.options.clickAction) {
+                switch (this.style.options.clickAction) {
                     case 'ripple':
                         
-                        effectElem.animate([
+                        this.effectElem.animate([
                             {opacity: '1', transform: 'scale(1)'},
                             {opacity: '0', transform: 'scale(2)'}
                         ], animationTime)
 
                         setTimeout(() => {
-                            effectElem.style.opacity = '0';
+                            this.effectElem.style.opacity = '0';
                         }, animationTime)
 
                         break;
@@ -104,58 +103,71 @@ class Stalker {
 
 
         //フェードインアウト
-        if(style.options.fadeOut_In){
+        if(this.style.options.fadeOut_In){
             document.addEventListener('mouseout', () => {
-                msElem.style.opacity = '0';
+                this.msElem.style.opacity = '0';
             });
 
             document.addEventListener('mouseover', () => {
-                msElem.style.opacity = '1';
+                this.msElem.style.opacity = '1';
             });
         };
 
         //ホバーアクション
-        if(style.options.hoverAction){
+        if(this.style.options.hoverAction){
 
             const hovElems = document.getElementsByClassName('ms-hov');
 
             for (let i = 0; i < hovElems.length; i++) {
 
                 //over
-                hovElems[i].addEventListener('mouseover', ()=>{
+                hovElems[i].addEventListener('mouseover', (e)=>{
 
-                    //stalker element
-                    msElem.style.width = (style.size = style.size * 4) + 'px';
-                    msElem.style.height = style.size + 'px';
-                    msElem.style.border = style.color + ' ' + '2px solid';
-                    msElem.style.backgroundColor = 'transparent';
+                    if(e.target.getAttribute('ms-view') === 'hidden'){
+                        this.renderedStyles['opacity'].current = 0;
+                        this.hidden = true;
+                    }else {
 
-                    //effect element
-                    effectElem.style.width = style.size + 'px';
-                    effectElem.style.height = style.size + 'px';
+                        //stalker element;
+                        this.style.size = this.style.size * 4;
+                        this.renderedStyles['size'].current = this.style.size;
+                        this.msElem.style.border = this.style.color + ' ' + '1px solid';
+                        this.msElem.style.backgroundColor = 'transparent';
+    
+                        //effect element
+                        effectElem.style.width = this.style.size + 'px';
+                        effectElem.style.height = this.style.size + 'px';
+                    }
 
                 });
 
                 //out
                 hovElems[i].addEventListener('mouseout', ()=>{
 
-                    //stalker element
-                    msElem.style.width = (style.size = style.size / 4) + 'px';
-                    msElem.style.height = style.size + 'px';
-                    msElem.style.border = 'none';
-                    msElem.style.backgroundColor = style.color;
+                    if(this.hidden){
 
-                    //effect element
-                    effectElem.style.width = style.size+ 'px';
-                    effectElem.style.height = style.size + 'px';
+                        this.renderedStyles['opacity'].current = 1;
+                        this.hidden = false;
 
+                    }else {
+
+                        //stalker element
+                        this.style.size = this.style.size / 4;
+                        this.renderedStyles['size'].current = this.style.size;
+                        this.msElem.style.border = 'none';
+                        this.msElem.style.backgroundColor = this.style.color;
+    
+                        //effect element
+                        effectElem.style.width = this.style.size+ 'px';
+                        effectElem.style.height = this.style.size + 'px';
+                    }
                 });
             };
 
-            if(style.options.innerContent){
+            if(this.style.options.innerContent){
                 let innerContentElem = document.createElement('span');
                 innerContentElem.setAttribute('id', 'ms-innerContent');
-                msElem.appendChild(innerContentElem)
+                this.msElem.appendChild(innerContentElem)
 
 
                 for (let i = 0; i < hovElems.length; i++) {
@@ -170,14 +182,34 @@ class Stalker {
                         innerContentElem.innerText = '';
                     });
                 };
-            }
-        }
-
+            };
+        };
 
         //マウスを動かした際の処理
         document.addEventListener('mousemove', e => {
-            msElem.style.left = `${e.clientX - style.size / 2}px`;
-            msElem.style.top = `${e.clientY - style.size / 2}px`;
+            this.mouse.x = e.clientX - this.style.size / 2;
+            this.mouse.y = e.clientY - this.style.size / 2;
         });
+
+        this.render();
+    };
+    
+    
+
+    render(){
+        this.renderedStyles['tx'].current = this.mouse.x;
+        this.renderedStyles['ty'].current = this.mouse.y;
+        const lerp = (a, b, n) => (1 - n) * a + n * b;
+
+        for (const key in this.renderedStyles ) {
+            this.renderedStyles[key].previous = lerp(this.renderedStyles[key].previous, this.renderedStyles[key].current, this.renderedStyles[key].amt);
+        }
+
+        this.msElem.style.transform = `translateX(${(this.renderedStyles['tx'].previous)}px) translateY(${this.renderedStyles['ty'].previous}px)`;
+        this.msElem.style.width = `${this.renderedStyles['size'].previous}px`;
+        this.msElem.style.height = `${this.renderedStyles['size'].previous}px`;
+        this.msElem.style.opacity = this.renderedStyles['opacity'].previous;
+
+        requestAnimationFrame(() => this.render());
     };
 };
