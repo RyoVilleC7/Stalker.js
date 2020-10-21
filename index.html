@@ -29,12 +29,6 @@
             align-items: center;
         }
 
-        #MouseStalker #ms-innerContent{
-            color: red;
-            letter-spacing: 2px;
-            font-weight: bold;
-        }
-
     </style>
 </head>
 <body style="height: 1000px;">
@@ -42,20 +36,34 @@
     <div id="MouseStalker"></div>
 
     <div class="box_wrap">
-        <div class="box ms-hov" ms-view="hidden"></div>
-        <div class="box ms-hov" ms-data="→"></div>
-        <div class="box ms-hov" ms-data="×"></div>
+        <div class="box" ms-view="hidden"></div>
+        <div class="box ms-hov" ms-data="Click!"></div>
+        <div class="box ms-hov" ms-data="✖"></div>
     </div>
 
-    <script src="ms.js"></script>
+    <script src="stalker.js"></script>
     <script>
         const MouseStalker = new Stalker({
-            size: 16,
-            color: 'red',
+            size: 32,
+            color: 'purple',
             options: {
-                clickAction: 'none',
-                hoverAction: true,
-                innerContent: true
+                clickEffect: 'ripple',
+                hoverEffect: true,
+                innerContent: true,
+                innerContentStyle: {
+                    color: 'purple',
+                    size: 14,
+                    letterSpacing: 2,
+                    fontWeight: 'bold'
+                },
+                away: true,
+                frameOut: true,
+                cursorType: 'circle',
+                cursorStyle: {
+                    color: 'yellow',
+                    size: 16
+                },
+                hiddenViewPort: 1024
             }
         });
     </script>
